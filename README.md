@@ -89,7 +89,9 @@ python3 scripts/build_leaderboard_data.py data/
 python3 scripts/build_page.py .
 ```
 
-`site/index.html` is the page served at infino.ai/open-vdbbench.
+`site/open-vdbbench.html` is the board infino.ai serves at `/open-vdbbench/`:
+copy it over `src/data/open-vdbbench.html` in the website repo. `site/index.html`
+is the same board as a standalone page.
 
 Measure engines on Azure, one self-driving VM per engine:
 
@@ -116,7 +118,7 @@ scripts/azure_fleet.py        provision, watch, collect and delete the VMs
 scripts/check_matrix.py       matrix flags checked against the client sources
 scripts/collect_runs.py       runs/ -> data/measured_results.json
 scripts/build_leaderboard_data.py  data/ -> data/leaderboard_data.json
-scripts/build_page.py         leaderboard_data.json -> site/index.html
+scripts/build_page.py         leaderboard_data.json -> site/
 scripts/schema.py             the result row schema both builders share
 results/<engine>/             the result file behind every row
 data/                         normalized results the board is built from
