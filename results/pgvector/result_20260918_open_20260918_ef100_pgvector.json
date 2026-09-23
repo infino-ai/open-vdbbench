@@ -1,0 +1,207 @@
+{
+  "file_fmt": "result_{}_{}_{}.json",
+  "results": [
+    {
+      "dataset_metadata": null,
+      "label": ":)",
+      "metrics": {
+        "additional_parameters": {
+          "ground_truth": {
+            "file": "neighbors.parquet",
+            "query_count": 1000,
+            "width": 1000
+          },
+          "insert_batch_size": 100,
+          "load_concurrency": 0
+        },
+        "conc_latency_avg_list": [
+          0.0026869742066121787,
+          0.0029669808801987916,
+          0.003412356753881266,
+          0.004817688811676553,
+          0.007513572064855924,
+          0.01043014918187041,
+          0.016515750727879735,
+          0.022682733305431052
+        ],
+        "conc_latency_p50_list": [
+          0.0027096869999923,
+          0.0029963480000105847,
+          0.003432320999991134,
+          0.0040915175000009185,
+          0.007652214000017921,
+          0.010067181000067649,
+          0.015447001499978796,
+          0.020545933499988678
+        ],
+        "conc_latency_p95_list": [
+          0.0033743249999815816,
+          0.0037502970500497665,
+          0.004340617750017373,
+          0.009665502899980537,
+          0.012382586799981249,
+          0.019045519399946895,
+          0.028898152300035906,
+          0.04021051404998842
+        ],
+        "conc_latency_p99_list": [
+          0.003585694600064925,
+          0.004007520810000642,
+          0.004731088350007439,
+          0.011945474900031741,
+          0.017616381490011004,
+          0.022730229920048268,
+          0.03665722590001679,
+          0.05465233884001918
+        ],
+        "conc_num_list": [
+          1,
+          5,
+          10,
+          20,
+          30,
+          40,
+          60,
+          80
+        ],
+        "conc_qps_list": [
+          371.9188,
+          1683.7154,
+          2925.3255,
+          4142.0356,
+          3980.499,
+          3818.3967,
+          3609.828,
+          3488.795
+        ],
+        "indexed_after_searchable_seconds": 0.0,
+        "insert_completion_seconds": 0.0,
+        "insert_duration": 45.2909,
+        "insert_rows_per_second": 0.0,
+        "inserted_count": 1000000,
+        "load_duration": 339.0442,
+        "max_load_count": 0,
+        "mrr": 0.0,
+        "ndcg": 0.9235,
+        "optimize_duration": 293.7533,
+        "payload_estimated_bytes_per_query": 2000,
+        "payload_profile": "ids_only",
+        "qps": 4142.0356,
+        "recall": 0.9095,
+        "recall_at": {
+          "100": 0.9095
+        },
+        "searchable_after_insert_seconds": 0.0,
+        "serial_latency_p50": 0.0028,
+        "serial_latency_p95": 0.0035,
+        "serial_latency_p99": 0.005,
+        "st_conc_failed_rate_list": [],
+        "st_conc_latency_avg_list_list": [],
+        "st_conc_latency_p95_list_list": [],
+        "st_conc_latency_p99_list_list": [],
+        "st_conc_num_list_list": [],
+        "st_conc_qps_list_list": [],
+        "st_ideal_insert_duration": 0,
+        "st_max_qps_list_list": [],
+        "st_ndcg_list": [],
+        "st_recall_list": [],
+        "st_search_stage_list": [],
+        "st_search_time_list": [],
+        "st_serial_latency_p95_list": [],
+        "st_serial_latency_p99_list": []
+      },
+      "task_config": {
+        "case_config": {
+          "case_id": 5,
+          "concurrency_search_config": {
+            "concurrency_duration": 30,
+            "concurrency_timeout": 3600,
+            "num_concurrency": [
+              1,
+              5,
+              10,
+              20,
+              30,
+              40,
+              60,
+              80
+            ],
+            "serial_cooldown": 0.0
+          },
+          "custom_case": {},
+          "k": 100,
+          "payload_profile": "ids_only"
+        },
+        "db": "PgVector",
+        "db_case_config": {
+          "create_index_after_load": true,
+          "create_index_before_load": false,
+          "ef_construction": 300,
+          "ef_search": 100,
+          "index": "hnsw",
+          "iterative_scan": "relaxed_order",
+          "m": 16,
+          "maintenance_work_mem": "16GB",
+          "max_parallel_workers": 16,
+          "metric_type": "COSINE",
+          "quantization_type": "halfvec",
+          "quantized_fetch_limit": null,
+          "reranking": false,
+          "reranking_metric": "COSINE",
+          "table_quantization_type": "halfvec"
+        },
+        "db_config": {
+          "db_label": "Standard_D16ads_v7",
+          "db_name": "bench",
+          "host": "127.0.0.1",
+          "note": "Standard_D16ads_v7 azure",
+          "password": "**********",
+          "port": 5432,
+          "table_name": "vdbbench_table_test",
+          "user_name": "**********",
+          "version": "17.11 (Debian 17.11-1.pgdg12+2) / pgvector 0.8.6"
+        },
+        "insert_batch_size": 100,
+        "load_concurrency": 0,
+        "stages": [
+          "drop_old",
+          "load",
+          "search_serial",
+          "search_concurrent"
+        ]
+      }
+    }
+  ],
+  "run_id": "623e0c81656942a1aefae2c140bde4bf",
+  "run_meta": {
+    "case": "Performance768D1M",
+    "cloud": "azure",
+    "cpu_count": 16,
+    "cpu_model": "x86_64",
+    "db_label": "Standard_D16ads_v7",
+    "ef_flag": "--ef-search",
+    "ef_sweep": [
+      "100",
+      "150",
+      "200",
+      "300",
+      "500"
+    ],
+    "engine_id": "pgvector",
+    "engine_image": "pgvector/pgvector:pg17",
+    "engine_version_reported": "17.11 (Debian 17.11-1.pgdg12+2) / pgvector 0.8.6",
+    "k": 100,
+    "kernel": "6.17.0-1022-azure",
+    "measured_at": "2026-09-18T20:11:31Z",
+    "measured_until": "2026-09-18T20:47:48Z",
+    "mem_total_kb": 65840860,
+    "num_concurrency": "1,5,10,20,30,40,60,80",
+    "task_label": "open_20260918",
+    "vdbbench_commit": "5fcb1b706b1e61a24a13b2cbaea9e6edadb93d34",
+    "vdbbench_ref": "open-leaderboard",
+    "vdbbench_repo": "infino-ai/VectorDBBench",
+    "vm_size": "Standard_D16ads_v7"
+  },
+  "task_label": "open_20260918_ef100",
+  "timestamp": 1789689600.0
+}

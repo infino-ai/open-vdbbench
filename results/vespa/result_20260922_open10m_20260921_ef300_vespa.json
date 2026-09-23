@@ -1,0 +1,189 @@
+{
+  "file_fmt": "result_{}_{}_{}.json",
+  "results": [
+    {
+      "dataset_metadata": null,
+      "label": ":)",
+      "metrics": {
+        "additional_parameters": {
+          "ground_truth": {
+            "file": "neighbors.parquet",
+            "query_count": 1000,
+            "width": 10000
+          }
+        },
+        "conc_latency_avg_list": [
+          0.003897546758935189,
+          0.007608722837331268,
+          0.01945853895362188,
+          0.03511697077327968,
+          0.051146386006919856,
+          0.07235241925725894,
+          0.10624014463507121,
+          0.11769760884006428
+        ],
+        "conc_latency_p50_list": [
+          0.0038995190006971825,
+          0.00735722299941699,
+          0.006371254999976372,
+          0.012840705999224156,
+          0.01725578100013081,
+          0.020591907999914838,
+          0.03445772599934571,
+          0.03991455300092639
+        ],
+        "conc_latency_p95_list": [
+          0.004327543299586977,
+          0.008556452700031515,
+          0.01175774369839928,
+          0.018444380750224806,
+          0.026964098999087586,
+          0.03489438929973403,
+          0.05880835769976329,
+          0.07323121419976814
+        ],
+        "conc_latency_p99_list": [
+          0.004511488319767522,
+          0.009131287780255662,
+          0.014021526539581825,
+          0.02145321035019151,
+          0.03283827779931016,
+          0.046537908200079935,
+          0.09266755149910752,
+          1.0794549368006163
+        ],
+        "conc_num_list": [
+          1,
+          5,
+          10,
+          20,
+          30,
+          40,
+          60,
+          80
+        ],
+        "conc_qps_list": [
+          256.466,
+          646.5051,
+          513.7627,
+          547.4052,
+          562.367,
+          522.9673,
+          509.813,
+          626.4224
+        ],
+        "indexed_after_searchable_seconds": 0.0,
+        "insert_completion_seconds": 0.0,
+        "insert_duration": 0.0,
+        "insert_rows_per_second": 0.0,
+        "inserted_count": 0,
+        "load_duration": 0.0,
+        "max_load_count": 0,
+        "mrr": 0.0,
+        "ndcg": 0.89,
+        "optimize_duration": 0.0,
+        "payload_estimated_bytes_per_query": 2000,
+        "payload_profile": "ids_only",
+        "qps": 646.5051,
+        "recall": 0.8825,
+        "recall_at": {
+          "100": 0.8825
+        },
+        "searchable_after_insert_seconds": 0.0,
+        "serial_latency_p50": 0.0039,
+        "serial_latency_p95": 0.0044,
+        "serial_latency_p99": 0.0046,
+        "st_conc_failed_rate_list": [],
+        "st_conc_latency_avg_list_list": [],
+        "st_conc_latency_p95_list_list": [],
+        "st_conc_latency_p99_list_list": [],
+        "st_conc_num_list_list": [],
+        "st_conc_qps_list_list": [],
+        "st_ideal_insert_duration": 0,
+        "st_max_qps_list_list": [],
+        "st_ndcg_list": [],
+        "st_recall_list": [],
+        "st_search_stage_list": [],
+        "st_search_time_list": [],
+        "st_serial_latency_p95_list": [],
+        "st_serial_latency_p99_list": []
+      },
+      "task_config": {
+        "case_config": {
+          "case_id": 4,
+          "concurrency_search_config": {
+            "concurrency_duration": 30,
+            "concurrency_timeout": 3600,
+            "num_concurrency": [
+              1,
+              5,
+              10,
+              20,
+              30,
+              40,
+              60,
+              80
+            ],
+            "serial_cooldown": 0.0
+          },
+          "custom_case": {},
+          "k": 100,
+          "payload_profile": "ids_only"
+        },
+        "db": "Vespa",
+        "db_case_config": {
+          "M": 16,
+          "ef": 300,
+          "efConstruction": 300,
+          "metric_type": "COSINE",
+          "quantization_type": "none"
+        },
+        "db_config": {
+          "db_label": "",
+          "note": "Standard_D16ads_v7 azure",
+          "port": 8080,
+          "url": "**********",
+          "version": "vespa-logfmt version 8.754.14"
+        },
+        "insert_batch_size": 100,
+        "load_concurrency": 0,
+        "stages": [
+          "search_serial",
+          "search_concurrent"
+        ]
+      }
+    }
+  ],
+  "run_id": "13e88370c8934a109c7d358fd4fea564",
+  "run_meta": {
+    "case": "Performance768D10M",
+    "cloud": "azure",
+    "cpu_count": 16,
+    "cpu_model": "x86_64",
+    "db_label": "Standard_D16ads_v7",
+    "ef_flag": "--ef-search",
+    "ef_sweep": [
+      "100",
+      "150",
+      "200",
+      "300",
+      "500"
+    ],
+    "engine_id": "vespa",
+    "engine_image": "vespaengine/vespa:latest",
+    "engine_version_reported": "vespa-logfmt version 8.754.14",
+    "k": 100,
+    "kernel": "6.17.0-1022-azure",
+    "measured_at": "2026-09-21T21:53:54Z",
+    "measured_until": "2026-09-22T01:45:17Z",
+    "mem_total_kb": 65840856,
+    "num_concurrency": "1,5,10,20,30,40,60,80",
+    "task_label": "open10m_20260921",
+    "vdbbench_commit": "31b32189bec53fe0eaad40739a0b414330681c5d",
+    "vdbbench_ref": "open-leaderboard",
+    "vdbbench_repo": "infino-ai/VectorDBBench",
+    "vm_size": "Standard_D16ads_v7"
+  },
+  "task_label": "open10m_20260921_ef300",
+  "timestamp": 1790035200.0
+}

@@ -1,0 +1,54 @@
+# Minimal TiDB cluster with a TiFlash node. Vector search is served from the
+# columnar replica, so TiFlash is not optional for this benchmark.
+services:
+  pd:
+    image: pingcap/pd:v8.5.1
+    network_mode: host
+    command:
+      - --name=pd0
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://127.0.0.1:2379
+      - --advertise-peer-urls=http://127.0.0.1:2380
+      - --initial-cluster=pd0=http://127.0.0.1:2380
+      - --data-dir=/data/pd
+    volumes: ["/mnt/bench/tidb/pd:/data"]
+    restart: on-failure
+
+  tikv:
+    image: pingcap/tikv:v8.5.1
+    network_mode: host
+    command:
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=127.0.0.1:20160
+      - --status-addr=0.0.0.0:20180
+      - --data-dir=/data/tikv
+      - --pd=127.0.0.1:2379
+      - --config=/config/tikv.toml
+    volumes:
+      - "/mnt/bench/tidb/tikv:/data"
+      - "/mnt/bench/tidb/conf:/config"
+    depends_on: [pd]
+    restart: on-failure
+
+  tidb:
+    image: pingcap/tidb:v8.5.1
+    network_mode: host
+    command:
+      - --store=tikv
+      - --path=127.0.0.1:2379
+      - --advertise-address=127.0.0.1
+      - -P=4000
+      - --status=10080
+    depends_on: [tikv]
+    restart: on-failure
+
+  tiflash:
+    image: pingcap/tiflash:v8.5.1
+    network_mode: host
+    volumes:
+      - "/mnt/bench/tidb/tiflash:/data"
+      - "/mnt/bench/tidb/conf:/config"
+    command: ["--config-file", "/config/tiflash.toml"]
+    depends_on: [tidb]
+    restart: on-failure

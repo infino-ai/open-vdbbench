@@ -1,0 +1,23 @@
+# Credentials never get committed. The runner reads them from here at run time.
+.secrets/
+*-sa.json
+*-sp.json
+azure-sp.json
+gcp-sa.json
+service-account*.json
+application_default_credentials.json
+*.pem
+ssh_key*
+
+# Local run output
+runs/
+*.log
+__pycache__/
+upstream/
+
+# Windows resolves this name to the NUL device; a stray file can appear here.
+nul
+upstream-main/
+
+# Preview copy of the page without its document wrapper; site/index.html is the published one.
+leaderboard/

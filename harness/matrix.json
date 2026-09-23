@@ -1,0 +1,801 @@
+{
+  "$comment": "Benchmark matrix. One entry is one leg on one VM. Every engine runs on the same machine type, with quantization on wherever the client supports it.",
+  "defaults": {
+    "cloud": "azure",
+    "vm_size": "Standard_D16ads_v7",
+    "vm_note": "16 vCPU / 64 GB, with 880 GiB of local NVMe carrying the benchmark data",
+    "location": "eastus",
+    "disk_size_gb": "128",
+    "case": "Performance768D1M",
+    "dataset": "Cohere 1M x 768D",
+    "k": 100,
+    "num_concurrency": "1,5,10,20,30,40,60,80",
+    "concurrency_duration": 30,
+    "task_label": "open_20260916",
+    "timeout_minutes": 240,
+    "disk_note": "The OS disk holds only the OS and container images. Benchmark data goes on local NVMe: the machine exposes two 440 GB devices and the harness mounts the first at /mnt/bench, far above the roughly 30 GB working set.",
+    "equivalents": {
+      "gcp": "n2-standard-16 in us-central1-a",
+      "aws": "m6i.4xlarge in us-east-1"
+    },
+    "vdb_repo": "infino-ai/VectorDBBench",
+    "vdb_ref": "open-leaderboard"
+  },
+  "engines": [
+    {
+      "id": "opensearch-selfhosted",
+      "display": "OpenSearch (self-hosted)",
+      "client_dir": "oss_opensearch",
+      "cmd": "ossopensearch",
+      "image": "opensearchproject/opensearch:3.8.0",
+      "port": 9200,
+      "quantized": true,
+      "index_config": "HNSW + scalar quantization (fp16), force-merge to 1 segment",
+      "args": [
+        "--host",
+        "localhost",
+        "--port",
+        "9200",
+        "--engine",
+        "faiss",
+        "--quantization-type",
+        "FaissSQfp16",
+        "--force-merge-enabled",
+        "true",
+        "--number-of-segments",
+        "1",
+        "--number-of-shards",
+        "1",
+        "--number-of-replicas",
+        "0",
+        "--index-thread-qty",
+        "8",
+        "--metric-type",
+        "COSINE",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "opensearch",
+      "patch_note": "upstream main + bits on the sq encoder, without which OpenSearch 3.6 and later reject the index and the run measures nothing",
+      "per_case": {
+        "Performance768D10M": {
+          "env": {
+            "OS_HEAP": "16g",
+            "OS_KNN_CB": "50%"
+          },
+          "disclosure_note": "The 1M leg runs a 31 GB heap with the k-NN circuit breaker at 70%. At 10M the off-heap FAISS index does not fit alongside that heap and the container was killed with exit 137 during the search. This leg runs a 16 GB heap and a 50% breaker, so the heap and the off-heap index together stay inside the machine."
+        }
+      }
+    },
+    {
+      "id": "redis",
+      "display": "Redis",
+      "client_dir": "redis",
+      "cmd": "redis",
+      "image": "redis/redis-stack-server:latest",
+      "port": 6379,
+      "quantized": false,
+      "index_config": "HNSW float32 (the client offers FLOAT32 or FLOAT64 only)",
+      "args": [
+        "--host",
+        "localhost",
+        "--port",
+        "6379",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-runtime",
+      "pip_extra": "redis",
+      "pip_pins": "redis<5",
+      "patch_note": "the redis extra carries no upper bound, and the client imports redis.commands.search.indexDefinition, which redis-py renamed to index_definition in 5.0, so a fresh install cannot import the client",
+      "per_case": {
+        "Performance768D10M": {
+          "env": {
+            "VDB_REDIS_VECTOR_TYPE": "FLOAT16",
+            "REDIS_MAXMEMORY": "44gb"
+          },
+          "disclosure_note": "At FLOAT32, which is the only precision the upstream client offers, the kernel killed redis-server at 55.1 GB resident against a 28.6 GiB corpus: the hash field and the HNSW index each keep a copy. This leg runs FLOAT16, which halves both copies, and caps maxmemory at 44 GB so a miss refuses writes instead of taking the machine down. The 1M row is FLOAT32."
+        }
+      }
+    },
+    {
+      "id": "chroma",
+      "display": "Chroma",
+      "client_dir": "chroma",
+      "cmd": "chroma",
+      "image": "chromadb/chroma:1.0.0",
+      "port": 8000,
+      "quantized": false,
+      "index_config": "HNSW float32",
+      "args": [
+        "--host",
+        "localhost",
+        "--port",
+        "8000",
+        "--m",
+        "16",
+        "--ef-construct",
+        "300",
+        "--ef-search",
+        "500"
+      ],
+      "ef_sweep": [],
+      "ef_flag": null,
+      "pip_extra": "chromadb",
+      "patch_note": "upstream main + two fixes: the result file could not be written at all, and ef_search never reached the collection because search_param returned a flat dict where modify(configuration=...) takes the nested one",
+      "sweep_note": "Chroma applies ef_search only in optimize(), which the runner calls once, during the load stage. A sweep would need a full reload per point, so this leg is a single run at ef_search 500."
+    },
+    {
+      "id": "vespa",
+      "display": "Vespa",
+      "client_dir": "vespa",
+      "cmd": "vespa",
+      "image": "vespaengine/vespa:8.754.14",
+      "port": 8080,
+      "quantized": false,
+      "index_config": "HNSW float32 (the only quantized option, binary, has no rescoring)",
+      "args": [
+        "--uri",
+        "http://localhost",
+        "--port",
+        "8080",
+        "--quantization",
+        "none",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "vespa",
+      "quantization_note": "the client's only quantized option is binary, whose rank profile has no second phase, so it searches 1-bit hamming with no reranking",
+      "patch_note": "upstream main + two fixes: a nearestNeighbor query was scored by nativeRank rather than distance, and the vector search asked for no hits parameter, so Vespa returned its default ten whatever k was"
+    },
+    {
+      "id": "clickhouse",
+      "display": "ClickHouse",
+      "client_dir": "clickhouse",
+      "cmd": "clickhouse",
+      "image": "clickhouse/clickhouse-server:26.8.6.5",
+      "port": 8123,
+      "quantized": true,
+      "index_config": "vector_similarity HNSW, bf16 quantization",
+      "args": [
+        "--host",
+        "localhost",
+        "--port",
+        "8123",
+        "--user",
+        "default",
+        "--password",
+        "bench",
+        "--no-ssl",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300",
+        "--load-concurrency",
+        "1"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-runtime",
+      "pip_extra": "clickhouse",
+      "load_note": "loaded with --load-concurrency 1: the client shares one connection across the loader's workers, which fails at the default concurrency",
+      "sweep_note": "The client computes ef into search_param and never sends it, so every point queries at the index default and returns recall 0.9901. The sweep is kept because the flat curve is the evidence.",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "100"
+          ],
+          "sweep_note": "The client computes ef into search_param and never sends it. The 1M run showed the consequence, recall 0.9901 at all five values, so this leg is one point."
+        }
+      }
+    },
+    {
+      "id": "lancedb",
+      "display": "LanceDB",
+      "client_dir": "lancedb",
+      "cmd": "lancedbivfhnswsq",
+      "image": null,
+      "embedded": true,
+      "port": null,
+      "quantized": true,
+      "index_config": "IVF_HNSW_SQ (scalar quantization)",
+      "args": [
+        "--uri",
+        "/mnt/bench/lancedb",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300",
+        "--num-partitions",
+        "256"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef",
+      "pip_extra": "lancedb",
+      "pip_pins": "lancedb==0.39.0"
+    },
+    {
+      "id": "mariadb",
+      "display": "MariaDB",
+      "client_dir": "mariadb",
+      "cmd": "mariadbhnsw",
+      "image": "mariadb:11.8.9",
+      "port": 3306,
+      "quantized": true,
+      "index_config": "HNSW, MariaDB stores vectors as binary16 internally",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "3306",
+        "--username",
+        "root",
+        "--password",
+        "bench",
+        "--storage-engine",
+        "InnoDB",
+        "--max-cache-size",
+        "17179869184",
+        "--m",
+        "16",
+        "--load-concurrency",
+        "1"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "mariadb",
+      "apt_extra": "libmariadb-dev",
+      "patch_note": "upstream main + two fixes: the unfiltered search SQL was missing a space, and optimize() could not accept the data_size the runner passes, so the vector index was never built",
+      "load_note": "loaded with --load-concurrency 1: the client shares one connection across the loader's workers, which fails at the default concurrency"
+    },
+    {
+      "id": "tidb",
+      "display": "TiDB",
+      "client_dir": "tidb",
+      "cmd": "tidb",
+      "image": "compose",
+      "compose": "tidb",
+      "port": 4000,
+      "quantized": false,
+      "index_config": "HNSW on a TiFlash replica, float32 (the client sets no index parameters)",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "4000",
+        "--username",
+        "root",
+        "--db-name",
+        "bench"
+      ],
+      "ef_sweep": [],
+      "ef_flag": null,
+      "pip_extra": "tidb",
+      "sweep_note": "The client exposes only connection options and sets no search parameter, so this leg is one point."
+    },
+    {
+      "id": "vectorchord",
+      "display": "VectorChord",
+      "client_dir": "vectorchord",
+      "cmd": "vectorchordrq",
+      "image": "tensorchord/vchord-postgres:pg17-v0.4.3",
+      "port": 5432,
+      "quantized": true,
+      "index_config": "vchordrq (RaBitQ) with residual quantization",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "5432",
+        "--user-name",
+        "postgres",
+        "--password",
+        "bench",
+        "--db-name",
+        "bench",
+        "--quantization-type",
+        "vector",
+        "--residual-quantization",
+        "--lists",
+        "1000",
+        "--build-threads",
+        "16",
+        "--max-parallel-workers",
+        "16"
+      ],
+      "ef_sweep": [
+        "10",
+        "20",
+        "40",
+        "80",
+        "160"
+      ],
+      "ef_flag": "--probes",
+      "pip_extra": "pgvector",
+      "patch_note": "the client offers rabitq4 and rabitq8, and vchord 0.4.3 defines no operator class of that name, so index creation fails and the table is scanned"
+    },
+    {
+      "id": "pgvectorscale",
+      "display": "pgvectorscale",
+      "client_dir": "pgvectorscale",
+      "cmd": "pgvectorscalediskann",
+      "image": "timescale/timescaledb-ha:pg17.11-ts2.29.2",
+      "port": 5432,
+      "quantized": true,
+      "index_config": "StreamingDiskANN, memory_optimized storage (SBQ), rescore 400",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--user-name",
+        "postgres",
+        "--password",
+        "bench",
+        "--db-name",
+        "bench",
+        "--storage-layout",
+        "memory_optimized",
+        "--num-neighbors",
+        "50",
+        "--search-list-size",
+        "100",
+        "--max-alpha",
+        "1.2",
+        "--query-rescore",
+        "400"
+      ],
+      "ef_sweep": [
+        "50",
+        "75",
+        "100",
+        "150",
+        "250"
+      ],
+      "ef_flag": "--query-search-list-size",
+      "port_note": "the pgvectorscale client does not expose --port; its config defaults to 5432",
+      "pip_extra": "pgvector",
+      "disclosure_note": "The timescaledb-ha image keeps PGDATA at its own path. The harness reads that path from the image, so this engine's data is on local NVMe like the other Postgres engines.",
+      "sweep_note": "Recall moves from 0.9450 to 0.9465 across search list sizes 50 to 250, because --query-rescore 400 re-ranks 400 candidates exactly and that, rather than the search list, sets the recall at k=100. The sweep is a throughput curve at one recall."
+    },
+    {
+      "id": "pgvector",
+      "display": "pgvector",
+      "client_dir": "pgvector",
+      "cmd": "pgvectorhnsw",
+      "image": "pgvector/pgvector:0.8.6-pg17",
+      "port": 5432,
+      "quantized": true,
+      "index_config": "HNSW on halfvec (fp16)",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "5432",
+        "--user-name",
+        "postgres",
+        "--password",
+        "bench",
+        "--db-name",
+        "bench",
+        "--quantization-type",
+        "halfvec",
+        "--table-quantization-type",
+        "halfvec",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300",
+        "--maintenance-work-mem",
+        "16GB",
+        "--max-parallel-workers",
+        "16"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "pgvector",
+      "patch_note": "upstream main + HalfVector on the binary COPY rows; without it a halfvec table cannot be loaded at all"
+    },
+    {
+      "id": "infino",
+      "display": "Infino",
+      "client_dir": "infino",
+      "cmd": "infino",
+      "image": null,
+      "embedded": true,
+      "port": null,
+      "quantized": true,
+      "index_config": "resident HNSW over Sq16 vectors (hnsw_ivf)",
+      "args": [
+        "--data-path",
+        "/mnt/bench/infino",
+        "--table-name",
+        "vdbbench_infino",
+        "--search-mode",
+        "hnsw_ivf"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef",
+      "pip_extra": "infino",
+      "vdb_repo": "infino-ai/VectorDBBench",
+      "vdb_ref": "open-leaderboard-infino",
+      "env": {
+        "INFINO_BENCH_SERVE": "1"
+      },
+      "patch_note": "runs from open-leaderboard-infino, which is open-leaderboard plus the Infino client; the client exists on no other branch",
+      "disclosure_note": "the client writes only ef, metric and search_mode into its result, so the row reads not disclosed for compression, the same as any other row that does not state it. The run was configured with the resident HNSW path over Sq16 vectors.",
+      "pip_pins": "infino==0.8.0"
+    },
+    {
+      "id": "milvus",
+      "display": "Milvus",
+      "client_dir": "milvus",
+      "cmd": "milvushnswsq",
+      "image": "compose",
+      "compose": "milvus",
+      "port": 19530,
+      "quantized": true,
+      "index_config": "HNSW_SQ, SQ4U with FP16 refinement, refine_k 2",
+      "args": [
+        "--uri",
+        "http://localhost:19530",
+        "--sq-type",
+        "SQ4U",
+        "--refine",
+        "true",
+        "--refine-type",
+        "FP16",
+        "--refine-k",
+        "2.0",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "",
+      "quantization_note": "SQ4U with FP16 refinement. The command requires --refine-k and publishes no default, so this leg fetches twice k before refining."
+    },
+    {
+      "id": "elasticsearch",
+      "display": "Elasticsearch (self-hosted)",
+      "client_dir": "elastic_cloud",
+      "cmd": "elasticcloudhnswint8",
+      "image": "docker.elastic.co/elasticsearch/elasticsearch:9.5.1",
+      "port": 9200,
+      "quantized": true,
+      "index_config": "int8_hnsw with rescore, oversample 2.0",
+      "args": [
+        "--host",
+        "localhost",
+        "--port",
+        "9200",
+        "--scheme",
+        "http",
+        "--user",
+        "elastic",
+        "--password",
+        "changeme",
+        "--use-rescore",
+        "true",
+        "--oversample-ratio",
+        "2.0",
+        "--use-force-merge",
+        "true",
+        "--number-of-shards",
+        "1",
+        "--number-of-replicas",
+        "0",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--num-candidates",
+      "pip_extra": "elastic",
+      "pip_pins": "elasticsearch==9.5.1",
+      "patch_note": "the elastic extra is unbounded and installs client 9.5.1, which sends compatible-with=9 and is refused by any 8.x server, so the client and the server are pinned to the same version"
+    },
+    {
+      "id": "qdrant",
+      "display": "Qdrant (self-hosted)",
+      "client_dir": "qdrant_local",
+      "cmd": "qdrantlocal",
+      "image": "qdrant/qdrant:v1.19.1",
+      "port": 6333,
+      "quantized": false,
+      "index_config": "HNSW float32",
+      "args": [
+        "--url",
+        "http://localhost:6333",
+        "--m",
+        "16",
+        "--ef-construct",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--hnsw-ef",
+      "pip_extra": "qdrant"
+    },
+    {
+      "id": "cockroachdb",
+      "display": "CockroachDB",
+      "client_dir": "cockroachdb",
+      "cmd": "cockroachdb",
+      "image": "cockroachdb/cockroach:v26.2.6",
+      "port": 26257,
+      "quantized": false,
+      "index_config": "C-SPANN vector index, float32",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "26257",
+        "--user-name",
+        "root",
+        "--db-name",
+        "bench",
+        "--sslmode",
+        "disable"
+      ],
+      "ef_sweep": [
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "ef_flag": "--vector-search-beam-size",
+      "pip_extra": "cockroachdb",
+      "sweep_note": "Beam size 128 reached 0.8230 recall on the first pass, so the ladder starts where the curve was still climbing and runs to 1024.",
+      "disclosure_note": "--cache defaults to 128 MiB. This leg runs --cache=.35 and --max-sql-memory=.25, so about 22 GB of block cache and 16 GB for SQL on a 64 GB machine."
+    },
+    {
+      "id": "pgvecto-rs",
+      "display": "pgvecto.rs",
+      "client_dir": "pgvecto_rs",
+      "cmd": "pgvectorshnsw",
+      "image": "tensorchord/pgvecto-rs:pg16-v0.4.0",
+      "port": 5432,
+      "quantized": false,
+      "index_config": "HNSW, no quantization, vectors 0.4.0",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--user-name",
+        "postgres",
+        "--password",
+        "bench",
+        "--db-name",
+        "bench",
+        "--quantization-type",
+        "trivial",
+        "--max-parallel-workers",
+        "16",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "pgvecto_rs",
+      "patch_note": "upstream main + a fix for PgVectoRSConfig.user_name, declared str while every command passes SecretStr, so no pgvecto.rs command could build its config"
+    },
+    {
+      "id": "weaviate",
+      "display": "Weaviate (self-hosted)",
+      "client_dir": "weaviate_cloud",
+      "cmd": "weaviate",
+      "image": "cr.weaviate.io/semitechnologies/weaviate:1.28.2",
+      "port": 8080,
+      "quantized": false,
+      "index_config": "HNSW float32",
+      "args": [
+        "--url",
+        "http://localhost:8080",
+        "--no-auth",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "100",
+        "200",
+        "400",
+        "800",
+        "1600"
+      ],
+      "ef_flag": "--ef",
+      "pip_extra": "weaviate",
+      "pip_pins": "weaviate-client<4",
+      "patch_note": "the weaviate extra is unbounded and installs v4, whose API the client does not use, so weaviate-client is pinned below 4. insert_embeddings also opens the shared client.batch context per call from four loader threads, which fails the load with RuntimeError: cannot schedule new futures after shutdown, so this runs from a branch that serialises the batch",
+      "reload_each_point": true,
+      "sweep_note": "The client applies ef in optimize(), which VectorDBBench calls only on an invocation that loads, so every point here reloads and rebuilds.",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "200"
+          ],
+          "sweep_note": "The client applies ef in optimize(), which runs only on an invocation that loads, so a swept point costs a full reload. At 10M that is about three hours a point, so this leg is one point at ef 200, the value that reached 0.9429 recall on the 1M corpus.",
+          "env": {
+            "VDB_WEAVIATE_VECTOR_CACHE": "2000000"
+          },
+          "disclosure_note": "Weaviate's in-memory vector cache has no effective default ceiling, and at 10M that drove the host into swap until sshd stopped answering for ninety minutes. This leg caps the cache at 2,000,000 objects, about 6 GB of the 28.6 GiB corpus, and lets the rest page. The 1M row ran with the default."
+        }
+      }
+    },
+    {
+      "id": "oceanbase",
+      "display": "OceanBase",
+      "client_dir": "oceanbase",
+      "cmd": "oceanbasehnsw",
+      "image": "oceanbase/oceanbase-ce:4.4.2.1-101000022026050611",
+      "port": 2881,
+      "quantized": true,
+      "index_config": "HNSW_SQ, M 16, efConstruction 300",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "2881",
+        "--user",
+        "root@test",
+        "--password",
+        "bench",
+        "--database",
+        "bench",
+        "--index-type",
+        "HNSW_SQ",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300",
+        "--create-index-parallel",
+        "16"
+      ],
+      "ef_sweep": [
+        "100",
+        "150",
+        "200",
+        "300",
+        "500"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "oceanbase",
+      "disclosure_note": "The image defaults to MODE=MINI, a 6 GB observer, which cannot hold this dataset. This leg runs MODE=NORMAL with a 40 GB observer and a 12 GB tenant on 13 of the 16 cores. 12 GB is the largest tenant the image's bootstrap will create: above it the cluster fails on create resource pool, at a 48 GB observer as well as a 40 GB one.",
+      "per_case": {
+        "Performance768D10M": {
+          "env": {
+            "OB_DATAFILE_SIZE": "250G",
+            "OB_LOG_DISK_SIZE": "80G"
+          },
+          "disclosure_note": "The image defaults to MODE=MINI, a 6 GB observer, which cannot hold this dataset. This leg runs MODE=NORMAL with a 40 GB observer and a 12 GB tenant on 13 of the 16 cores, the largest tenant the image's bootstrap will create. The 10M corpus also needs a bigger tablespace than the 1M one: at 80 GB the load fails with 4184, server out of disk space, so this leg gets 250 GB of datafile and 80 GB of log."
+        }
+      }
+    },
+    {
+      "id": "doris",
+      "display": "Apache Doris",
+      "client_dir": "doris",
+      "cmd": "doris",
+      "image": "compose",
+      "port": 9030,
+      "quantized": false,
+      "index_config": "HNSW ann_index, float32",
+      "args": [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "9030",
+        "--http-port",
+        "8030",
+        "--username",
+        "root",
+        "--db-name",
+        "bench",
+        "--insert-batch-size",
+        "10000"
+      ],
+      "ef_sweep": [
+        "32",
+        "64",
+        "128",
+        "256",
+        "500"
+      ],
+      "ef_flag": "--session-var",
+      "sweep_note": "Swept through --session-var hnsw_ef_search, which the client applies when it opens its connection, so each point sets its own value. The engine's own default is 32, which is where the ladder starts.",
+      "pip_extra": "doris",
+      "compose": "doris",
+      "patch_note": "the client needs Doris 4.x: 3.1.4 knows no hnsw_ef_search and its parser accepts only BITMAP, INVERTED and NGRAM_BF where the index DDL says ANN. This runs 4.1.4 with -XX:-UseContainerSupport, because the OpenJDK 17.0.2 the image still bundles cannot read this kernel's cgroup layout",
+      "pip_pins": "doris-vector-search==0.0.9",
+      "disclosure_note": "Every release of doris-vector-search from 0.0.2 on pins parallel_pipeline_task_num to 1, so each query runs on one pipeline task. That is the vendor SDK's own default and it is left alone.",
+      "ef_value_prefix": "hnsw_ef_search=",
+      "load_note": "The client turns each insert_embeddings call into one stream load, and the harness default hands it 100 rows at a time, so a million rows is ten thousand stream loads: 96 rows a second, a 2.9 hour load. This leg passes --insert-batch-size 10000. Every other engine loads at the default 100."
+    }
+  ]
+}

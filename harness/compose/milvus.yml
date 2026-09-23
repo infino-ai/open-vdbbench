@@ -1,0 +1,58 @@
+# Milvus standalone: etcd for metadata, minio for object storage, one Milvus.
+#
+# Deliberately NOT network_mode host. Under host networking Milvus registers its
+# internal component addresses in etcd and then cannot resolve them. The
+# supported layout is a bridge network where the service names resolve, with
+# only the client-facing ports published.
+#
+# COMMON_STORAGETYPE is remote. 2.6 routes object storage through an
+# arrow filesystem that accepts remote and local, so minio reaches the factory
+# as an unknown name and the standalone process aborts on
+# "Failed to init arrow filesystem". The mixcoord warnings that fill the log
+# after that are the crash loop, which is why this read as a networking fault.
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes: ["/mnt/bench/milvus/etcd:/etcd"]
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      retries: 12
+    restart: on-failure
+
+  minio:
+    # Docker Hub no longer serves minio/minio; quay is the live registry. MinIO is
+    # object-storage plumbing for Milvus, not the engine under test.
+    image: quay.io/minio/minio:latest
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    volumes: ["/mnt/bench/milvus/minio:/minio_data"]
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      retries: 12
+    restart: on-failure
+
+  standalone:
+    image: milvusdb/milvus:v2.6.14
+    command: ["milvus", "run", "standalone"]
+    environment:
+      - ETCD_ENDPOINTS=etcd:2379
+      - MINIO_ADDRESS=minio:9000
+      - COMMON_STORAGETYPE=remote
+    volumes: ["/mnt/bench/milvus/data:/var/lib/milvus"]
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      etcd: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    restart: on-failure

@@ -1,0 +1,197 @@
+{
+  "file_fmt": "result_{}_{}_{}.json",
+  "results": [
+    {
+      "dataset_metadata": null,
+      "label": ":)",
+      "metrics": {
+        "additional_parameters": {
+          "ground_truth": {
+            "file": "neighbors.parquet",
+            "query_count": 1000,
+            "width": 1000
+          }
+        },
+        "conc_latency_avg_list": [
+          0.0019360767677019258,
+          0.0023096116731578156,
+          0.003383826724507638,
+          0.006469271290932661,
+          0.010952139188223279,
+          0.013732090297725466,
+          0.021319846378754614,
+          0.0337260610000143
+        ],
+        "conc_latency_p50_list": [
+          0.0019454310001947306,
+          0.002247231000069405,
+          0.003153321999889158,
+          0.005244730999947933,
+          0.011958923000065624,
+          0.011836850999998205,
+          0.021200508999754675,
+          0.033864747999814426
+        ],
+        "conc_latency_p95_list": [
+          0.002182212000070649,
+          0.0028143935000457527,
+          0.005124591999992845,
+          0.012073677000103086,
+          0.01343306330008999,
+          0.02292768154973146,
+          0.037963167850034556,
+          0.03996983879987964
+        ],
+        "conc_latency_p99_list": [
+          0.002277176680008779,
+          0.004264523489985097,
+          0.006424951760009213,
+          0.013510071480040985,
+          0.015054341059949367,
+          0.028875342509968503,
+          0.054234559919891595,
+          0.044165901559899794
+        ],
+        "conc_num_list": [
+          1,
+          5,
+          10,
+          20,
+          30,
+          40,
+          60,
+          80
+        ],
+        "conc_qps_list": [
+          516.2788,
+          2162.3971,
+          2950.2714,
+          3085.3552,
+          2731.2394,
+          2888.6258,
+          2786.4556,
+          2343.6618
+        ],
+        "indexed_after_searchable_seconds": 0.0,
+        "insert_completion_seconds": 0.0,
+        "insert_duration": 0.0,
+        "insert_rows_per_second": 0.0,
+        "inserted_count": 0,
+        "load_duration": 0.0,
+        "max_load_count": 0,
+        "mrr": 0.0,
+        "ndcg": 0.9342,
+        "optimize_duration": 0.0,
+        "payload_estimated_bytes_per_query": 2000,
+        "payload_profile": "ids_only",
+        "qps": 3085.3552,
+        "recall": 0.9229,
+        "recall_at": {
+          "100": 0.9229
+        },
+        "searchable_after_insert_seconds": 0.0,
+        "serial_latency_p50": 0.0021,
+        "serial_latency_p95": 0.0025,
+        "serial_latency_p99": 0.0031,
+        "st_conc_failed_rate_list": [],
+        "st_conc_latency_avg_list_list": [],
+        "st_conc_latency_p95_list_list": [],
+        "st_conc_latency_p99_list_list": [],
+        "st_conc_num_list_list": [],
+        "st_conc_qps_list_list": [],
+        "st_ideal_insert_duration": 0,
+        "st_max_qps_list_list": [],
+        "st_ndcg_list": [],
+        "st_recall_list": [],
+        "st_search_stage_list": [],
+        "st_search_time_list": [],
+        "st_serial_latency_p95_list": [],
+        "st_serial_latency_p99_list": []
+      },
+      "task_config": {
+        "case_config": {
+          "case_id": 5,
+          "concurrency_search_config": {
+            "concurrency_duration": 30,
+            "concurrency_timeout": 3600,
+            "num_concurrency": [
+              1,
+              5,
+              10,
+              20,
+              30,
+              40,
+              60,
+              80
+            ],
+            "serial_cooldown": 0.0
+          },
+          "custom_case": {},
+          "k": 100,
+          "payload_profile": "ids_only"
+        },
+        "db": "PgVectoRS",
+        "db_case_config": {
+          "create_index_after_load": true,
+          "create_index_before_load": false,
+          "ef_construction": 300,
+          "ef_search": 150,
+          "index": "HNSW",
+          "m": 16,
+          "max_parallel_workers": 16,
+          "metric_type": "COSINE",
+          "quantization_ratio": null,
+          "quantization_type": "trivial"
+        },
+        "db_config": {
+          "db_label": "Standard_D16ads_v7",
+          "db_name": "bench",
+          "host": "127.0.0.1",
+          "note": "Standard_D16ads_v7 azure",
+          "password": "**********",
+          "port": 5432,
+          "user_name": "**********",
+          "version": "16.8 (Debian 16.8-1.pgdg120+1) / vectors 0.4.0"
+        },
+        "insert_batch_size": 100,
+        "load_concurrency": 0,
+        "stages": [
+          "search_serial",
+          "search_concurrent"
+        ]
+      }
+    }
+  ],
+  "run_id": "256df46c95c44efbbedd25dfa0d5c98f",
+  "run_meta": {
+    "case": "Performance768D1M",
+    "cloud": "azure",
+    "cpu_count": 16,
+    "cpu_model": "x86_64",
+    "db_label": "Standard_D16ads_v7",
+    "ef_flag": "--ef-search",
+    "ef_sweep": [
+      "100",
+      "150",
+      "200",
+      "300",
+      "500"
+    ],
+    "engine_id": "pgvecto-rs",
+    "engine_image": "tensorchord/pgvecto-rs:pg16-v0.4.0",
+    "engine_version_reported": "16.8 (Debian 16.8-1.pgdg120+1) / vectors 0.4.0",
+    "k": 100,
+    "kernel": "6.17.0-1022-azure",
+    "measured_at": "2026-09-21T13:52:10Z",
+    "measured_until": "2026-09-21T14:45:40Z",
+    "mem_total_kb": 65840860,
+    "num_concurrency": "1,5,10,20,30,40,60,80",
+    "task_label": "open_20260921",
+    "vdbbench_commit": "7a9807ee60b8aa9cd3884eb3cb15a2c249dbe178",
+    "vdbbench_ref": "open-leaderboard",
+    "vdbbench_repo": "infino-ai/VectorDBBench",
+    "vm_size": "Standard_D16ads_v7"
+  },
+  "task_label": "open_20260921_ef150",
+  "timestamp": 1789948800.0
+}

@@ -1,0 +1,7 @@
+# Minimal TiKV config. The compose file points --config here, and TiKV exits
+# 101 when the file is missing.
+[storage]
+reserve-space = "1GB"
+
+[raftstore]
+capacity = "200GB"

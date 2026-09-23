@@ -1,0 +1,17 @@
+# The Raft learner proxy TiFlash runs alongside its columnar engine.
+[server]
+engine-addr = "127.0.0.1:3930"
+addr = "0.0.0.0:20170"
+advertise-addr = "127.0.0.1:20170"
+status-addr = "0.0.0.0:20292"
+advertise-status-addr = "127.0.0.1:20292"
+
+[storage]
+data-dir = "/data/proxy"
+reserve-space = "1GB"
+
+[raftstore]
+capacity = "200GB"
+
+[log]
+level = "info"

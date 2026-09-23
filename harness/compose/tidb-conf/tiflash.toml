@@ -1,0 +1,26 @@
+# TiFlash serves the vector index, so this node is required for the run.
+listen_host = "0.0.0.0"
+path = "/data/tiflash"
+capacity = 0
+tmp_path = "/data/tiflash/tmp"
+
+[flash]
+tidb_status_addr = "127.0.0.1:10080"
+service_addr = "127.0.0.1:3930"
+
+[flash.flash_cluster]
+master_ttl = 60
+refresh_interval = 20
+update_rule_interval = 5
+cluster_manager_path = "/tiflash/flash_cluster_manager"
+
+[flash.proxy]
+config = "/config/tiflash-learner.toml"
+
+[logger]
+level = "info"
+log = "/data/logs/server.log"
+errorlog = "/data/logs/error.log"
+
+[raft]
+pd_addr = "127.0.0.1:2379"

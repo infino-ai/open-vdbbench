@@ -1,0 +1,29 @@
+# Doris 4.1, frontend plus backend. The vector index needs 4.x: 3.1.4 knows no
+# hnsw_ef_search, and its parser answers "mismatched input 'ANN' expecting
+# {BITMAP, INVERTED, NGRAM_BF}" to the index DDL the client sends. 4.1.4 has
+# hnsw_ef_search, hnsw_bounded_queue and hnsw_check_relative_distance, and
+# accepts USING ANN. The images auto-register through FE_SERVERS and BE_ADDR.
+services:
+  fe:
+    image: apache/doris:fe-4.1.4
+    network_mode: host
+    environment:
+      - FE_SERVERS=fe1:127.0.0.1:9010
+      - FE_ID=1
+    volumes:
+      - "/mnt/bench/doris/fe-meta:/opt/apache-doris/fe/doris-meta"
+      - "/mnt/bench/doris/fe-log:/opt/apache-doris/fe/log"
+      - "/mnt/bench/doris/fe-conf/fe.conf:/opt/apache-doris/fe/conf/fe.conf"
+    restart: on-failure
+
+  be:
+    image: apache/doris:be-4.1.4
+    network_mode: host
+    environment:
+      - FE_SERVERS=fe1:127.0.0.1:9010
+      - BE_ADDR=127.0.0.1:9050
+    volumes:
+      - "/mnt/bench/doris/be-storage:/opt/apache-doris/be/storage"
+      - "/mnt/bench/doris/be-log:/opt/apache-doris/be/log"
+    depends_on: [fe]
+    restart: on-failure

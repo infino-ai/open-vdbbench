@@ -1,0 +1,198 @@
+{
+  "file_fmt": "result_{}_{}_{}.json",
+  "results": [
+    {
+      "dataset_metadata": null,
+      "label": ":)",
+      "metrics": {
+        "additional_parameters": {
+          "ground_truth": {
+            "file": "neighbors.parquet",
+            "query_count": 1000,
+            "width": 1000
+          }
+        },
+        "conc_latency_avg_list": [
+          0.0013820929903656507,
+          0.0018009540207855174,
+          0.0022747615994780303,
+          0.0041564954976743,
+          0.006081499450729611,
+          0.008011900856795439,
+          0.011833055112772628,
+          0.015906697820529364
+        ],
+        "conc_latency_p50_list": [
+          0.0013671640001575724,
+          0.0017692710000574152,
+          0.002219951999904879,
+          0.00393322799982343,
+          0.005704788000002736,
+          0.007470989000012196,
+          0.010943421999854763,
+          0.01434783099989545
+        ],
+        "conc_latency_p95_list": [
+          0.0015385929999411016,
+          0.0020288860000619016,
+          0.002702064599952791,
+          0.0062569210001584,
+          0.009845300099891574,
+          0.013422226499892529,
+          0.020831301000043823,
+          0.02945816020003349
+        ],
+        "conc_latency_p99_list": [
+          0.0017521130799104856,
+          0.002835548080065568,
+          0.0035973674000524627,
+          0.007741201799990458,
+          0.012183804529938697,
+          0.016770640219951928,
+          0.027131320999956195,
+          0.04036043540007537
+        ],
+        "conc_num_list": [
+          1,
+          5,
+          10,
+          20,
+          30,
+          40,
+          60,
+          80
+        ],
+        "conc_qps_list": [
+          722.567,
+          2771.5394,
+          4385.4875,
+          4796.5986,
+          4896.0896,
+          4956.5132,
+          4973.5322,
+          4922.5561
+        ],
+        "indexed_after_searchable_seconds": 0.0,
+        "insert_completion_seconds": 0.0,
+        "insert_duration": 0.0,
+        "insert_rows_per_second": 0.0,
+        "inserted_count": 0,
+        "load_duration": 0.0,
+        "max_load_count": 0,
+        "mrr": 0.0,
+        "ndcg": 0.9667,
+        "optimize_duration": 0.0,
+        "payload_estimated_bytes_per_query": 2000,
+        "payload_profile": "ids_only",
+        "qps": 4973.5322,
+        "recall": 0.9614,
+        "recall_at": {
+          "100": 0.9614
+        },
+        "searchable_after_insert_seconds": 0.0,
+        "serial_latency_p50": 0.0014,
+        "serial_latency_p95": 0.0016,
+        "serial_latency_p99": 0.002,
+        "st_conc_failed_rate_list": [],
+        "st_conc_latency_avg_list_list": [],
+        "st_conc_latency_p95_list_list": [],
+        "st_conc_latency_p99_list_list": [],
+        "st_conc_num_list_list": [],
+        "st_conc_qps_list_list": [],
+        "st_ideal_insert_duration": 0,
+        "st_max_qps_list_list": [],
+        "st_ndcg_list": [],
+        "st_recall_list": [],
+        "st_search_stage_list": [],
+        "st_search_time_list": [],
+        "st_serial_latency_p95_list": [],
+        "st_serial_latency_p99_list": []
+      },
+      "task_config": {
+        "case_config": {
+          "case_id": 5,
+          "concurrency_search_config": {
+            "concurrency_duration": 30,
+            "concurrency_timeout": 3600,
+            "num_concurrency": [
+              1,
+              5,
+              10,
+              20,
+              30,
+              40,
+              60,
+              80
+            ],
+            "serial_cooldown": 0.0
+          },
+          "custom_case": {},
+          "k": 100,
+          "payload_profile": "ids_only"
+        },
+        "db": "Milvus",
+        "db_case_config": {
+          "M": 16,
+          "ef": 300,
+          "efConstruction": 300,
+          "index": "HNSW_SQ",
+          "metric_type": "COSINE",
+          "refine": true,
+          "refine_k": 2.0,
+          "refine_type": "FP16",
+          "sq_type": "SQ4U",
+          "use_partition_key": false
+        },
+        "db_config": {
+          "collection_name": "VDBBench",
+          "db_label": "Standard_D16ads_v7",
+          "note": "Standard_D16ads_v7 azure",
+          "num_shards": 1,
+          "password": null,
+          "replica_number": 1,
+          "uri": "**********",
+          "user": null,
+          "version": "v2.6.14"
+        },
+        "insert_batch_size": 100,
+        "load_concurrency": 0,
+        "stages": [
+          "search_serial",
+          "search_concurrent"
+        ]
+      }
+    }
+  ],
+  "run_id": "4e0c02af97bb4585ac07b9c27480192f",
+  "run_meta": {
+    "case": "Performance768D1M",
+    "cloud": "azure",
+    "cpu_count": 16,
+    "cpu_model": "x86_64",
+    "db_label": "Standard_D16ads_v7",
+    "ef_flag": "--ef-search",
+    "ef_sweep": [
+      "100",
+      "150",
+      "200",
+      "300",
+      "500"
+    ],
+    "engine_id": "milvus",
+    "engine_image": "compose",
+    "engine_version_reported": "v2.6.14",
+    "k": 100,
+    "kernel": "6.17.0-1022-azure",
+    "measured_at": "2026-09-21T14:22:43Z",
+    "measured_until": "2026-09-21T15:02:08Z",
+    "mem_total_kb": 65840856,
+    "num_concurrency": "1,5,10,20,30,40,60,80",
+    "task_label": "open_20260921",
+    "vdbbench_commit": "7a9807ee60b8aa9cd3884eb3cb15a2c249dbe178",
+    "vdbbench_ref": "open-leaderboard",
+    "vdbbench_repo": "infino-ai/VectorDBBench",
+    "vm_size": "Standard_D16ads_v7"
+  },
+  "task_label": "open_20260921_ef300",
+  "timestamp": 1789948800.0
+}
