@@ -10,7 +10,7 @@
     {
      "age_months": 0,
      "build_params": {},
-     "config": "resident HNSW over Sq16 vectors (hnsw_ivf)",
+     "config": "resident HNSW, Infino stores vectors as Sq16 internally (hnsw_ivf)",
      "curve": [
       {
        "measured": "2026-09-22",
@@ -1530,7 +1530,7 @@
     {
      "age_months": 0,
      "build_params": {},
-     "config": "resident HNSW over Sq16 vectors (hnsw_ivf)",
+     "config": "resident HNSW, Infino stores vectors as Sq16 internally (hnsw_ivf)",
      "curve": [
       {
        "measured": "2026-09-18",
@@ -3513,7 +3513,7 @@
    "rows": 1000000
   }
  },
- "generated": "2026-09-23",
+ "generated": "2026-09-25",
  "min_recall": 0.9,
  "reference_machine": {
   "ram_gb": 64,

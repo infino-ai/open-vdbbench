@@ -63,7 +63,7 @@ Each engine's index and compression, from `index_config` in
 | Chroma | HNSW float32 |
 | CockroachDB | C-SPANN vector index, float32 |
 | Elasticsearch | int8_hnsw with rescore, oversample 2.0 |
-| Infino | resident HNSW over Sq16 vectors (hnsw_ivf) |
+| Infino | resident HNSW, Infino stores vectors as Sq16 internally (hnsw_ivf) |
 | LanceDB | IVF_HNSW_SQ (scalar quantization) |
 | MariaDB | HNSW, MariaDB stores vectors as binary16 internally |
 | Milvus | HNSW_SQ, SQ4U with FP16 refinement, refine_k 2 |
@@ -78,6 +78,13 @@ Each engine's index and compression, from `index_config` in
 | pgvecto.rs | HNSW, no quantization, vectors 0.4.0 |
 | pgvector | HNSW on halfvec (fp16) |
 | pgvectorscale | StreamingDiskANN, memory_optimized storage (SBQ), rescore 400 |
+
+The board's quantized and float32 filters follow what the run selects. A run
+that picks a compressed index or vector type is quantized. Infino and MariaDB
+take float32 vectors and compress them internally with no setting in the run,
+so they are listed as float32 and the table above says how each stores them.
+What the filters compare is the configuration a user chooses, and recall shows
+what the storage costs.
 
 The pgvectorscale rescore depth has to exceed k, or recall is capped by how many
 candidates are checked at full precision. pgvector stores the table as halfvec

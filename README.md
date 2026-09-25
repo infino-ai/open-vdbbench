@@ -8,12 +8,13 @@ from.
 
 ## How results are published
 
-Results are updated whenever an engine submits a change. Every functioning
-submission is run and published, whatever it scores. A submission is
-functioning when the engine loads the dataset, answers the searches and writes a
-result file.
+A pull request for a new engine is merged within one month of being opened.
+Once a month we run every new and updated engine at 1M and 10M on the
+reference machine and rebuild the board.
 
-Pull requests without issues are merged within one month of being opened.
+Every functioning submission is run and published, whatever it scores. A
+submission is functioning when the engine loads the dataset, answers the
+searches and writes a result file.
 
 Numbers come only from our run on the reference machine.
 
@@ -52,8 +53,10 @@ new engine, a version bump and a configuration change all take the same steps.
 5. Open a pull request here saying what changed and which configuration you
    want measured.
 
-We run the engine at 1M and 10M on the reference machine, commit the result
-files under `results/<engine>/`, and rebuild the board.
+A new engine's pull request is merged within one month of being opened. The
+next monthly run measures it at 1M and 10M on the reference machine, commits the
+result files under `results/<engine>/`, and rebuilds the board. A version bump
+or configuration change goes into the same monthly run.
 
 ### Matrix fields
 
@@ -68,7 +71,7 @@ files under `results/<engine>/`, and rebuild the board.
 | `args` | flags passed to the subcommand |
 | `ef_flag`, `ef_sweep` | the search parameter and the values to sweep |
 | `index_config` | the index and compression, as shown on the board |
-| `quantized` | `true` when vectors are stored compressed |
+| `quantized` | `true` when the run selects a compressed index or vector type. Compression an engine applies on its own, with no setting in the run, is `false`, and `index_config` names it |
 | `per_case` | overrides for one case, such as a different sweep at 10M |
 | `vdb_repo`, `vdb_ref` | a fork or branch of VectorDBBench, when the client is not on `open-leaderboard` |
 

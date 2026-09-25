@@ -261,7 +261,7 @@
       "cmd": "mariadbhnsw",
       "image": "mariadb:11.8.9",
       "port": 3306,
-      "quantized": true,
+      "quantized": false,
       "index_config": "HNSW, MariaDB stores vectors as binary16 internally",
       "args": [
         "--host",
@@ -454,8 +454,8 @@
       "image": null,
       "embedded": true,
       "port": null,
-      "quantized": true,
-      "index_config": "resident HNSW over Sq16 vectors (hnsw_ivf)",
+      "quantized": false,
+      "index_config": "resident HNSW, Infino stores vectors as Sq16 internally (hnsw_ivf)",
       "args": [
         "--data-path",
         "/mnt/bench/infino",
