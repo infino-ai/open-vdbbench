@@ -135,8 +135,21 @@ def main(rundir, datadir):
     # both. Collecting several runs means passing the directory that holds them.
     # One row per engine, case and search-parameter value. A later wave of the
     # same point supersedes an earlier one rather than publishing both.
+    # A curve comes from one run: one VM, one load, one index build. When an
+    # engine and case were measured again, the newer run replaces the older one
+    # whole, so no curve mixes points from two builds of the index.
+    latest = {}
+    for r in kept:
+        key = (r.get("db"), r.get("case"))
+        if key not in latest or when(r) > latest[key][1]:
+            latest[key] = ((r.get("run_meta") or {}).get("task_label") or "", when(r))
+    older = sum(1 for r in kept
+                if ((r.get("run_meta") or {}).get("task_label") or "") != latest[(r.get("db"), r.get("case"))][0])
+    kept = [r for r in kept
+            if ((r.get("run_meta") or {}).get("task_label") or "") == latest[(r.get("db"), r.get("case"))][0]]
+
     best = {}
-    superseded = 0
+    superseded = older
     for r in kept:
         point = str(r.get("task_label") or "").split("_ef")[-1]
         key = (r.get("engine_id") or r.get("db"), r.get("case"), point)

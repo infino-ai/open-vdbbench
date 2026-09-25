@@ -59,6 +59,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -82,7 +84,7 @@
       "display": "Redis",
       "client_dir": "redis",
       "cmd": "redis",
-      "image": "redis/redis-stack-server:latest",
+      "image": "redis/redis-stack-server:7.4.0-v8",
       "port": 6379,
       "quantized": false,
       "index_config": "HNSW float32 (the client offers FLOAT32 or FLOAT64 only)",
@@ -98,6 +100,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -167,6 +171,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -175,7 +181,20 @@
       "ef_flag": "--ef-search",
       "pip_extra": "vespa",
       "quantization_note": "the client's only quantized option is binary, whose rank profile has no second phase, so it searches 1-bit hamming with no reranking",
-      "patch_note": "upstream main + two fixes: a nearestNeighbor query was scored by nativeRank rather than distance, and the vector search asked for no hits parameter, so Vespa returned its default ten whatever k was"
+      "patch_note": "upstream main + two fixes: a nearestNeighbor query was scored by nativeRank rather than distance, and the vector search asked for no hits parameter, so Vespa returned its default ten whatever k was",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "100",
+            "150",
+            "200",
+            "300",
+            "356",
+            "422",
+            "500"
+          ]
+        }
+      }
     },
     {
       "id": "clickhouse",
@@ -245,6 +264,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -351,6 +372,8 @@
       ],
       "ef_sweep": [
         "10",
+        "13",
+        "16",
         "20",
         "40",
         "80",
@@ -444,7 +467,20 @@
       ],
       "ef_flag": "--ef-search",
       "pip_extra": "pgvector",
-      "patch_note": "upstream main + HalfVector on the binary COPY rows; without it a halfvec table cannot be loaded at all"
+      "patch_note": "upstream main + HalfVector on the binary COPY rows; without it a halfvec table cannot be loaded at all",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "100",
+            "112",
+            "128",
+            "150",
+            "200",
+            "300",
+            "500"
+          ]
+        }
+      }
     },
     {
       "id": "infino",
@@ -466,6 +502,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -618,13 +656,28 @@
         "64",
         "128",
         "256",
+        "323",
+        "406",
         "512",
         "1024"
       ],
       "ef_flag": "--vector-search-beam-size",
       "pip_extra": "cockroachdb",
       "sweep_note": "Beam size 128 reached 0.8230 recall on the first pass, so the ladder starts where the curve was still climbing and runs to 1024.",
-      "disclosure_note": "--cache defaults to 128 MiB. This leg runs --cache=.35 and --max-sql-memory=.25, so about 22 GB of block cache and 16 GB for SQL on a 64 GB machine."
+      "disclosure_note": "--cache defaults to 128 MiB. This leg runs --cache=.35 and --max-sql-memory=.25, so about 22 GB of block cache and 16 GB for SQL on a 64 GB machine.",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "64",
+            "128",
+            "256",
+            "512",
+            "645",
+            "813",
+            "1024"
+          ]
+        }
+      }
     },
     {
       "id": "pgvecto-rs",
@@ -655,6 +708,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -684,6 +739,8 @@
       ],
       "ef_sweep": [
         "100",
+        "126",
+        "159",
         "200",
         "400",
         "800",
@@ -739,6 +796,8 @@
       ],
       "ef_sweep": [
         "100",
+        "112",
+        "128",
         "150",
         "200",
         "300",
@@ -782,6 +841,8 @@
       ],
       "ef_sweep": [
         "32",
+        "40",
+        "51",
         "64",
         "128",
         "256",
@@ -795,7 +856,18 @@
       "pip_pins": "doris-vector-search==0.0.9",
       "disclosure_note": "Every release of doris-vector-search from 0.0.2 on pins parallel_pipeline_task_num to 1, so each query runs on one pipeline task. That is the vendor SDK's own default and it is left alone.",
       "ef_value_prefix": "hnsw_ef_search=",
-      "load_note": "The client turns each insert_embeddings call into one stream load, and the harness default hands it 100 rows at a time, so a million rows is ten thousand stream loads: 96 rows a second, a 2.9 hour load. This leg passes --insert-batch-size 10000. Every other engine loads at the default 100."
+      "load_note": "The client turns each insert_embeddings call into one stream load, and the harness default hands it 100 rows at a time, so a million rows is ten thousand stream loads: 96 rows a second, a 2.9 hour load. This leg passes --insert-batch-size 10000. Every other engine loads at the default 100.",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "32",
+            "64",
+            "128",
+            "256",
+            "500"
+          ]
+        }
+      }
     }
   ]
 }
