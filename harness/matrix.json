@@ -375,13 +375,28 @@
         "13",
         "16",
         "20",
+        "25",
+        "32",
         "40",
         "80",
         "160"
       ],
       "ef_flag": "--probes",
       "pip_extra": "pgvector",
-      "patch_note": "the client offers rabitq4 and rabitq8, and vchord 0.4.3 defines no operator class of that name, so index creation fails and the table is scanned"
+      "patch_note": "the client offers rabitq4 and rabitq8, and vchord 0.4.3 defines no operator class of that name, so index creation fails and the table is scanned",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "10",
+            "13",
+            "16",
+            "20",
+            "40",
+            "80",
+            "160"
+          ]
+        }
+      }
     },
     {
       "id": "pgvectorscale",
@@ -717,7 +732,22 @@
       ],
       "ef_flag": "--ef-search",
       "pip_extra": "pgvecto_rs",
-      "patch_note": "upstream main + a fix for PgVectoRSConfig.user_name, declared str while every command passes SecretStr, so no pgvecto.rs command could build its config"
+      "patch_note": "upstream main + a fix for PgVectoRSConfig.user_name, declared str while every command passes SecretStr, so no pgvecto.rs command could build its config",
+      "per_case": {
+        "Performance768D10M": {
+          "ef_sweep": [
+            "100",
+            "112",
+            "128",
+            "150",
+            "165",
+            "182",
+            "200",
+            "300",
+            "500"
+          ]
+        }
+      }
     },
     {
       "id": "weaviate",

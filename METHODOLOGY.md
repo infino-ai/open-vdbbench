@@ -47,6 +47,13 @@ Ranked points sit at whatever recall each engine reached above 0.90, so two
 ranked rows can be compared at different recalls. The board's recall filter
 re-picks every engine's point at 0.95 and 0.99.
 
+Where a curve jumps across 0.90 between two sweep values, two more values are
+run inside the jump, for every engine it happens to. On the ef ladder that is
+112 and 128 between 100 and 150. Other ladders get values at the same relative
+spacing inside their own gap. The whole sweep then runs again in one session.
+A curve never mixes points from two builds of the index: a newer run of an
+engine and case replaces the older one whole.
+
 ## Index configuration
 
 Build parameters are held constant where the engines express the same concept:
