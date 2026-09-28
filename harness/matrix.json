@@ -68,7 +68,9 @@
       ],
       "ef_flag": "--ef-search",
       "pip_extra": "opensearch",
-      "patch_note": "upstream main + bits on the sq encoder, without which OpenSearch 3.6 and later reject the index and the run measures nothing",
+      "vdb_repo": "prasadnu/VectorDBBench",
+      "vdb_ref": "open-leaderboard-opensearch-parity",
+      "patch_note": "runs from open-leaderboard-opensearch-parity, which is open-leaderboard plus two OpenSearch-client fixes that bring it to parity with the Elasticsearch client on the same board, on top of the existing sq-encoder bits fix: (1) http_compress off - elasticsearch-py runs uncompressed on a plain-host connection and the ES leg is uncompressed, while the oss_opensearch client set http_compress=True, paying a gzip-on-loopback CPU cost no other engine pays; (2) result ids returned via filter_path (hits.hits._id), as the ES client returns only ids, instead of serializing the full response envelope on every KNN query. Neither change touches the index, the query, k, or recall; they change how the response is transported and read. The sq-encoder bits fix (without which OpenSearch 3.6+ reject the index) is retained. See AUDIT.md and the linked VectorDBBench PR.",
       "per_case": {
         "Performance768D10M": {
           "env": {
