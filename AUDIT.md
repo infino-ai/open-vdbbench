@@ -4,11 +4,16 @@ Defects found in the VectorDBBench clients and in this harness while producing
 the results on the board, and what was changed for each. Every client fix is on
 [infino-ai/VectorDBBench](https://github.com/infino-ai/VectorDBBench) at
 `open-leaderboard`, and each result file records the repository, ref and commit
-it was measured with.
+it was measured with. The two OpenSearch response-path fixes below (uncompressed
+transport and `filter_path`) are on the `open-leaderboard-opensearch-parity`
+branch, referenced from this engine's `matrix.json` entry via `vdb_repo`/`vdb_ref`
+until they merge back to `open-leaderboard`; they bring the OpenSearch client to
+parity with the Elasticsearch client and change neither the index, the query, nor
+recall.
 
 ## Client defects
 
-Sixteen defects in client code had to be fixed before these engines produced a
+Eighteen defects in client code had to be fixed before these engines produced a
 usable result:
 
 | Client | Defect | Effect |
@@ -18,6 +23,8 @@ usable result:
 | MariaDB | one cursor shared across the loader's four workers | the load fails and retries until it gives up |
 | ClickHouse | one `clickhouse_connect` session shared across the loader's four workers | ClickHouse refuses concurrent queries inside a session, so the load never finishes |
 | OpenSearch (self-hosted) | the `sq` encoder is sent without the `bits` parameter that OpenSearch 3.6 and later require, on both the plain and the `--clip` path | index creation returns 400, the leg exits zero, and every metric in the result file is zero |
+| OpenSearch (self-hosted) | the `oss_opensearch` client sets `http_compress=True`, while the Elasticsearch client runs uncompressed on a plain-host connection (elasticsearch-py's default; `elasticsearch==9.5.1` resolves `http_compress=False` against `http://localhost:9200`) and the Postgres family does not compress either | every response is gzipped on a loopback connection, pure CPU with no wire benefit, a cost no other engine on the board pays; removing it for parity with the ES client raised throughput about 30% at the same recall on the reference-class machine |
+| OpenSearch (self-hosted) | the KNN search sets no `filter_path`, so the whole response envelope is serialized on every query, while the Elasticsearch client returns only ids through `filter_path` and the OpenSearch client already uses `filter_path` on its own FTS path | each query ships and the client deserializes fields VectorDBBench discards; adding `filter_path` to return ids only, as the ES client does, cut per-query work with no change to the index, the query or recall |
 | Redis | the `redis` extra carries no upper bound, and the client imports `redis.commands.search.indexDefinition`, which redis-py renamed to `index_definition` in 5.0 | a fresh install resolves redis-py 8.1.0 and the client cannot be imported at all |
 | Vespa | both rank profiles declare an empty first phase and inherit the default profile, so a query carrying only a `nearestNeighbor` operator scores every hit the same under nativeRank | the search reaches the HNSW index and the ordering then discards what it found: recall 0.087 at ef 100, rising only to 0.098 at ef 500 |
 | Chroma | `search_param` returns a flat `{"ef_search": n}` where `optimize` hands it to `collection.modify(configuration=...)`, which takes the nested shape `index_param` already builds. `optimize` is also the only place ef_search is applied, and the runner calls it only while loading | ef_search never reaches the collection, and even corrected it cannot be varied without reloading a million vectors: recall 0.8773 at every one of ef 100, 150, 200, 300 and 500 |
@@ -39,7 +46,7 @@ server's version restores a media type the server accepts. In all three an extra
 with no upper bound resolves to a newer release than the client was written
 against.
 
-Three of the sixteen are one mistake: a handle that is not thread safe, used
+Three of the eighteen are one mistake: a handle that is not thread safe, used
 from the loader's four worker threads. MariaDB shares a cursor, ClickHouse
 shares a session, Weaviate shares a batch. The first two fail every time. The
 third depends on thread interleaving, which is why it read as flakiness until
