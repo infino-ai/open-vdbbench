@@ -908,14 +908,18 @@
       "embedded": true,
       "port": null,
       "quantized": true,
-      "index_config": "WARM single-layer graph, 4-bit traversal codes with 8-bit residual rerank (quantized)",
+      "index_config": "WARM graph, 4-bit traversal codes with 8-bit residual rerank over the whole candidate pool (quantized)",
       "args": [
         "--path",
         "/mnt/bench/warm",
         "--m",
         "16",
         "--ef-construction",
-        "300"
+        "300",
+        "--code-bits",
+        "4",
+        "--residual-bits",
+        "8"
       ],
       "ef_sweep": [
         "120",

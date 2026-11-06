@@ -81,6 +81,7 @@ Each engine's index and compression, from `index_config` in
 | TiDB | HNSW on a TiFlash replica, float32 (the client sets no index parameters) |
 | VectorChord | vchordrq (RaBitQ) with residual quantization |
 | Vespa | HNSW float32 (the only quantized option, binary, has no rescoring) |
+| WARM | graph over 4-bit traversal codes, 8-bit residual rerank of the whole candidate pool |
 | Weaviate | HNSW float32 |
 | pgvecto.rs | HNSW, no quantization, vectors 0.4.0 |
 | pgvector | HNSW on halfvec (fp16) |
