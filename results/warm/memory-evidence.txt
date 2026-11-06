@@ -1,0 +1,21 @@
+# Memory evidence excerpts (Performance768D1M, Cohere 1M x 768D, warm-python 0.6.4)
+
+## Index build log line (official CLI load run)
+2026-11-06 02:25:52,545 | INFO: WARM index built over 1000000 vectors: 1263170028 payload bytes (warm.py:135) (16365)
+
+## Concurrency 20 run start (excerpt of the CLI log)
+2026-11-06 02:37:30,129 | INFO: Start search 30s in concurrency 20, filters: type=<FilterOp.NonFilter: 'NonFilter'> filter_rate=0.0 gt_file_name='neighbors.parquet' (mp_runner.py:189) (43711)
+2026-11-06 02:37:40,222 | INFO: Syncing all process and start concurrency search, concurrency=20 (mp_runner.py:196) (43711)
+
+## Memory guard log for that run
+# A guard script polled about every 2 s. avail_mb = free + inactive + speculative pages; rss_gb = summed RSS of the benchmark worker processes (spawn_main).
+# The guard kills the run when avail_mb < 2048. rss_gb 0.2 on the last line is after the kill.
+02:37:28 avail_mb=19991 rss_gb=0.2
+02:37:30 avail_mb=18711 rss_gb=1.5
+02:37:32 avail_mb=17265 rss_gb=4.7
+02:37:34 avail_mb=16881 rss_gb=4.7
+02:37:36 avail_mb=16593 rss_gb=4.7
+02:37:39 avail_mb=16493 rss_gb=4.7
+02:37:42 avail_mb=12567 rss_gb=12.7
+02:37:49 avail_mb=744 rss_gb=0.2
+KILLED
