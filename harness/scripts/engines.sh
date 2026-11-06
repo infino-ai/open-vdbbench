@@ -268,6 +268,14 @@ up_infino() { host_dir "$BENCH_DIR/infino"; echo "infino is embedded, no server 
 version_infino() { python3 -c 'import infino;print(infino.__version__)' 2>/dev/null || pip show infino 2>/dev/null | awk '/^Version/{print $2}'; }
 down_infino() { :; }
 
+# ----------------------------------------------------------------------- WARM
+# Embedded, like LanceDB: warm-python is a native wheel and the index lives in a
+# directory under $BENCH_DIR. Every search process loads its own copy of the
+# saved index, so resident memory grows with the concurrency level.
+up_warm() { host_dir "$BENCH_DIR/warm"; echo "warm is embedded, no server to start"; }
+version_warm() { python3 -c 'import importlib.metadata as m;print(m.version("warm-python"))' 2>/dev/null || pip show warm-python 2>/dev/null | awk '/^Version/{print $2}'; }
+down_warm() { :; }
+
 # --------------------------------------------------------------------- Milvus
 # Milvus standalone, from harness/compose/milvus.yml.
 up_milvus() {

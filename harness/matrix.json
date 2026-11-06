@@ -898,6 +898,40 @@
           ]
         }
       }
+    },
+    {
+      "id": "warm",
+      "display": "WARM",
+      "client_dir": "warm",
+      "cmd": "warm",
+      "image": null,
+      "embedded": true,
+      "port": null,
+      "quantized": true,
+      "index_config": "WARM single-layer graph, 4-bit traversal codes with 8-bit residual rerank (quantized)",
+      "args": [
+        "--path",
+        "/mnt/bench/warm",
+        "--m",
+        "16",
+        "--ef-construction",
+        "300"
+      ],
+      "ef_sweep": [
+        "120",
+        "128",
+        "150",
+        "200",
+        "300",
+        "500",
+        "800"
+      ],
+      "ef_flag": "--ef-search",
+      "pip_extra": "warm",
+      "pip_pins": "warm-python==0.6.4",
+      "vdb_repo": "dcondrey/VectorDBBench",
+      "vdb_ref": "open-leaderboard-warm",
+      "patch_note": "runs from open-leaderboard-warm, which is open-leaderboard plus the WARM client; the client exists on no other branch until its pull request merges"
     }
   ]
 }
