@@ -1,0 +1,120 @@
+{
+  "run_id": "5d5758bffb634b5ea1766e1f51df41d4",
+  "task_label": "warm-py0.6.4-ef300",
+  "results": [
+    {
+      "metrics": {
+        "max_load_count": 0,
+        "insert_duration": 0.0,
+        "optimize_duration": 0.0,
+        "load_duration": 0.0,
+        "qps": 15895.5889,
+        "serial_latency_p99": 0.0004,
+        "serial_latency_p95": 0.0004,
+        "serial_latency_p50": 0.0003,
+        "recall": 0.9756,
+        "recall_at": {
+          "100": 0.9756
+        },
+        "ndcg": 0.9793,
+        "mrr": 0.0,
+        "conc_num_list": [
+          1,
+          10
+        ],
+        "conc_qps_list": [
+          2212.4642,
+          15895.5889
+        ],
+        "conc_latency_p99_list": [
+          0.002219566653948275,
+          0.0020543501107021934
+        ],
+        "conc_latency_p95_list": [
+          0.0010067955357953903,
+          0.00102216670056805
+        ],
+        "conc_latency_p50_list": [
+          0.0003266250714659691,
+          0.00044654100202023983
+        ],
+        "conc_latency_avg_list": [
+          0.0004483986445982355,
+          0.0006098848283832433
+        ],
+        "payload_profile": "ids_only",
+        "payload_estimated_bytes_per_query": 2000,
+        "inserted_count": 0,
+        "insert_rows_per_second": 0.0,
+        "insert_completion_seconds": 0.0,
+        "searchable_after_insert_seconds": 0.0,
+        "indexed_after_searchable_seconds": 0.0,
+        "additional_parameters": {
+          "ground_truth": {
+            "file": "neighbors.parquet",
+            "query_count": 1000,
+            "width": 1000
+          }
+        },
+        "st_ideal_insert_duration": 0,
+        "st_search_stage_list": [],
+        "st_search_time_list": [],
+        "st_max_qps_list_list": [],
+        "st_recall_list": [],
+        "st_ndcg_list": [],
+        "st_serial_latency_p99_list": [],
+        "st_serial_latency_p95_list": [],
+        "st_conc_failed_rate_list": [],
+        "st_conc_num_list_list": [],
+        "st_conc_qps_list_list": [],
+        "st_conc_latency_p99_list_list": [],
+        "st_conc_latency_p95_list_list": [],
+        "st_conc_latency_avg_list_list": []
+      },
+      "task_config": {
+        "db": "Warm",
+        "db_config": {
+          "db_label": "m4-warm-py0.6.4",
+          "version": "",
+          "note": "",
+          "path": "<index dir>"
+        },
+        "db_case_config": {
+          "metric_type": "COSINE",
+          "m": 16,
+          "ef_construction": 300,
+          "ef_search": 300,
+          "rerank": 0,
+          "code_bits": 4,
+          "residual_bits": 8,
+          "threads": 0
+        },
+        "case_config": {
+          "case_id": 5,
+          "custom_case": {},
+          "payload_profile": "ids_only",
+          "k": 100,
+          "concurrency_search_config": {
+            "num_concurrency": [
+              1,
+              10
+            ],
+            "concurrency_duration": 30,
+            "concurrency_timeout": 3600,
+            "serial_cooldown": 0.0
+          }
+        },
+        "stages": [
+          "search_serial",
+          "search_concurrent"
+        ],
+        "load_concurrency": 0,
+        "insert_batch_size": 100
+      },
+      "label": ":)",
+      "dataset_metadata": null
+    }
+  ],
+  "file_fmt": "result_{}_{}_{}.json",
+  "timestamp": 1793952000.0
+}
